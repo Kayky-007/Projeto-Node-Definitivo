@@ -1,0 +1,68 @@
+<main class="py-5" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+
+        <div class="card shadow-lg rounded-4">
+          <div class="card-body p-4">
+            <h4 class="mb-4 text-center">Editar Produto</h4>
+            <h4 class="mb-4 text-center"></h4>
+            <div class="d-flex justify-content-center">
+              <div class="card" style="width: 18rem;">
+                <img  src="../imagens/{{produto.imagem_produto}}" class="card-img-top" alt="Imagem do Produto">
+                <div class="card-body">
+                  <p class="card-text text-center">ID: {{produto.id_produto}}</p>
+                </div>
+              </div>
+            </div>
+            <br>
+
+
+            <form action="/editar" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="imagemAtual" id="nome_imagem" value="{{produto.imagem_produto}}">
+
+              <input type="hidden" name="id_produto" value="{{produto.id_produto}}">
+
+              <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Produto</label>
+                <input id="nome" name="nome_produto" value="{{produto.nome_produto}}" class="form-control" type="text"
+                  placeholder="Ex: Caneta Azul">
+              </div>
+
+              <div class="mb-3">
+                <label for="valor" class="form-label">Valor do Produto (R$)</label>
+                <input id="valor" name="preco_produto" value="{{produto.preco_produto}}" class="form-control"
+                  type="number" step="0.01" placeholder="Ex: 5.90">
+              </div>
+
+              <div class="mb-4">
+                <label for="imagem" class="form-label">Imagem do Produto</label>
+                <input id="imagem" name="novaImagem" class="form-control" type="file">
+              </div>
+
+              <div class="d-grid">
+                <input id="id_cadastrar" class="btn btn-primary" type="submit" value="Atualizar">
+              </div>
+              <br>
+              <div class="d-grid">
+                <a href="/" class="btn btn-danger">Cancelar</a>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+</main>
+
+<script>
+
+</script>

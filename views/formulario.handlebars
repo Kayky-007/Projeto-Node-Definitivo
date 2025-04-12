@@ -1,0 +1,76 @@
+<main class="py-5" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+
+        <div class="card shadow-lg rounded-4">
+          <div class="card-body p-4">
+            <h4 class="mb-4 text-center">Cadastrar Produto</h4>
+            <h5 class="mb-4 text-center">Fique a vontade Davisão</h5>
+            <h5 class="mb-4 text-center">Nada de Intenções maliciosas e injeção de SQL no projeto do coleguinha</h5>
+
+            <form action="/cadastrar" method="POST" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Produto</label>
+                <input id="nome" name="nome_produto" class="form-control" type="text" placeholder="Ex: Caneta Azul">
+              </div>
+
+              <div class="mb-3">
+                <label for="valor" class="form-label">Valor do Produto (R$)</label>
+                <input id="valor" name="preco_produto" class="form-control" type="number" step="0.01"
+                  placeholder="Ex: 5.90">
+              </div>
+
+              <div class="mb-4">
+                <label for="imagem" class="form-label">Imagem do Produto</label>
+                <input id="imagem" name="imagem_produto" class="form-control" type="file">
+              </div>
+
+              <div class="d-grid">
+                <input id="id_cadastrar" class="btn btn-primary" type="submit" value="Cadastrar">
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {{!-- Listagem dos Produtos --}}
+
+  <hr class="my-5">
+
+  <h4 class="text-center mb-4">Produtos Cadastrados</h4>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {{#each produtos}}
+
+    <div class="col">
+      <div class="card h-100 shadow-sm rounded-4" style="max-width: 300px; margin: 0 auto;">
+        <img src="imagens/{{imagem_produto}}" class="card-img-top rounded-top-4" alt="Caneta Azul"
+          style="height: 160px; object-fit: cover;">
+        <div class="card-body pb-2">
+          <h5 class="card-title mb-1">{{nome_produto}}</h5>
+          <p class="card-text text-success fw-bold mb-3">{{preco_produto}}</p>
+          <div class="d-flex justify-content-between">
+            <a href="/editar/{{id_produto}}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <a href="/deletar/{{id_produto}}&{{imagem_produto}}" class="btn btn-sm btn-outline-danger">Excluir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{/each}}
+
+
+  </div>
+
+
+</main>
+
+<script>
+  
+</script>
