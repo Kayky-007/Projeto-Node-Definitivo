@@ -26,7 +26,16 @@ app.use('/bootstrap', express.static('.node_modules/bootstrap/dist'));
 app.use('/imagens', express.static('./imagens'));
 
 // Configurções do express-handlebars
-app.engine('handlebars', engine());
+app.engine('handlebars', engine(
+    {
+    helpers: {
+      // Função auxiliar para verificar igualdade
+      condicionalIgualdade: function (parametro1, parametro2, options) {
+        return parametro1 === parametro2 ? options.fn(this) : options.inverse(this);
+      }
+    }
+  }
+));
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
@@ -47,11 +56,11 @@ conexão.connect(function (erro) {
     if (erro) throw erro;
     console.log('Conexão efetuada com sucesso!');
 });
+// REQ = Passar parametros como informações do tipo json, ou seja, req captura informações
+// RES = Seria a Resposta, quando eu quiser exibir algo como um texto, ou seja, o res é a resposta do cliente para o req
 
 //Rota Principal
 app.get('/', function (req, res) {
-    // REQ = Passar parametros como informações do tipo json, ou seja, req captura informações
-    // RES = Seria a Resposta, quando eu quiser exibir algo como um texto, um objeto
     //SQL
     const sql = `SELECT * FROM produtos`
 
@@ -63,8 +72,22 @@ app.get('/', function (req, res) {
     });
 });
 
+//Rota Principal contendo a situação
+app.get('/:situacao', function (req, res) {
+    //SQL
+    const sql = `SELECT * FROM produtos`
+
+    conexão.query(sql, function (erro, retorno) {
+        if (erro) throw erro;
+
+        res.render('formulario', { produtos: retorno, situacao: req.params.situacao });
+
+    });
+});
+
 // Rota de Remoção
 app.get('/deletar/:id_produto&:imagem_produto', function (req, res) {
+   try{
     const id_produto = req.params.id_produto;
     const imagem_produto = req.params.imagem_produto
     const sql = `DELETE FROM produtos WHERE id_produto = ${id_produto}`
@@ -75,31 +98,44 @@ app.get('/deletar/:id_produto&:imagem_produto', function (req, res) {
         // Lógica para deletar uma imagem da pasta
         fs.unlink(__dirname + '/imagens/' + imagem_produto, (erro_imagem) => { console.log("Falha ao remover a imagem") })
     })
-    res.redirect('/')
+    res.redirect('/okRemover')
+   }catch(erro){
+    res.redirect('/falhaRemover')
+   }
 });
 
 //Rota de Cadastro
 
 app.post('/cadastrar', function (req, res) {
 
-    // Obter os dados que serão utilizados para o cadastro
-    const nome_produto = req.body.nome_produto
-    const preco_produto = req.body.preco_produto
-    const imagem_produto = req.files.imagem_produto.name
+    try {
+        // Obter os dados que serão utilizados para o cadastro
+        const nome_produto = req.body.nome_produto
+        const preco_produto = req.body.preco_produto
+        const imagem_produto = req.files.imagem_produto.name
 
-    //SQL
-    const sql = `INSERT INTO produtos (nome_produto, preco_produto, imagem_produto) VALUES ('${nome_produto}', ${preco_produto}, '${imagem_produto}')`
+        // Validar o nome do produto e o valor 
+        if (nome_produto == '' || preco_produto == '' || isNaN == (preco_produto) ) {
+            res.redirect('/falhaCadastrar')
+        } else {
+            //SQL
+            const sql = `INSERT INTO produtos (nome_produto, preco_produto, imagem_produto) VALUES ('${nome_produto}', ${preco_produto}, '${imagem_produto}')`
 
-    conexão.query(sql, function (erro, retorno) {
-        if (erro) throw erro;
+            conexão.query(sql, function (erro, retorno) {
+                if (erro) throw erro;
 
-        // Movendo imagem e guardando numa pasta
-        const caminho_imagem = __dirname + '/imagens/' + req.files.imagem_produto.name // Salvando o caminho numa variavel
-        req.files.imagem_produto.mv(caminho_imagem);
-        console.log(retorno);
+                // Movendo imagem e guardando numa pasta
+                const caminho_imagem = __dirname + '/imagens/' + req.files.imagem_produto.name // Salvando o caminho numa variavel
+                req.files.imagem_produto.mv(caminho_imagem);
+                console.log(retorno);
 
-        res.redirect('/'); // redicecionar para a rota principal
-    });
+                res.redirect('/okCadastrar'); 
+            });
+        }
+
+    } catch (erro) {
+        res.redirect('/falhaCadastrar');
+    }
 
 });
 
@@ -121,42 +157,48 @@ app.post('/editar', function (req, res) {
     const nome_produto = req.body.nome_produto;
     const preco_produto = req.body.preco_produto;
     const imagem_produto = req.body.imagemAtual;
-    
-    
+
+
     try {
-        if (req.files && req.files.novaImagem) {
+        //Validar nome do produto e preço
+        if (req.files && req.files.novaImagem || nome_produto == '' || preco_produto == '' || preco_produto == isNaN(preco_produto)) {
             const novaImagem = req.files.novaImagem;
             const sql = `UPDATE produtos SET nome_produto='${nome_produto}',preco_produto='${preco_produto}',imagem_produto='${novaImagem.name}' WHERE id_produto = ${id_produto}`;
-    
+
             //Executando comando SQL
-            conexão.query(sql, function(erro, retorno){
-                if(erro) throw erro;
-    
+            conexão.query(sql, function (erro, retorno) {
+                if (erro) throw erro;
+
                 //Removendo a imagem antiga
-                fs.unlink(__dirname + '/imagens/' + imagem_produto, (erro_imagem)=>{
-                    console.log('Falha ao remover a imagem');
+                fs.unlink(__dirname + '/imagens/' + imagem_produto, (erro_imagem) => {
+                    console.log(erro_imagem);
                     console.log(imagem_produto);
                 });
-    
+
                 //Cadastrando imagem nova
                 novaImagem.mv(__dirname + '/imagens/' + novaImagem.name);
             });
         } else {
             const sql = `UPDATE produtos SET nome_produto='${nome_produto}',preco_produto='${preco_produto}' WHERE id_produto = ${id_produto}`;
-    
-            conexão.query(sql, function(erro, retorno){
-                if(erro) throw erro;
+
+            conexão.query(sql, function (erro, retorno) {
+                if (erro) throw erro;
             });
+            res.redirect('/okEditar')
         }
     } catch (erro) {
+        res.redirect('/falhaEditar')
         console.log('Erro ao atualizar produto:', erro.message);
     }
-    
 
-   
+
+
 
     res.redirect('/')
 })
+
+
+
 
 
 //Servidor

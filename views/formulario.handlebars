@@ -10,6 +10,16 @@
             <h5 class="mb-4 text-center">Fique a vontade Davisão</h5>
             <h5 class="mb-4 text-center">Nada de Intenções maliciosas e injeção de SQL no projeto do coleguinha</h5>
 
+
+            {{!-- Mensagens --}}
+            {{#condicionalIgualdade situacao "okCadastro"}}
+
+            <div class="alert alert-success" >
+              Produto cadastrado com sucesso!
+            </div>
+
+            {{/condicionalIgualdade}}
+
             <form action="/cadastrar" method="POST" enctype="multipart/form-data">
               <div class="mb-3">
                 <label for="nome" class="form-label">Nome do Produto</label>
@@ -72,5 +82,5 @@
 </main>
 
 <script>
-  
+
 </script>
